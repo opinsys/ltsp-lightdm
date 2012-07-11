@@ -1,0 +1,8 @@
+[Desktop Entry]
+# Start up a false session, the actual desktop is launched via PAM (/usr/share/ltsp/ltsp-session)
+Name=LTSP Desktop
+Comment=
+Exec=/usr/share/ltsp/xsession-stub
+TryExec=/usr/share/ltsp/xsession-stub
+Icon=
+Type=Application

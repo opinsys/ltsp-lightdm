@@ -1,0 +1,9 @@
+#!/bin/sh
+# Hack to keep the thin client session open while the ssh connection is open
+# FIXME: support also fat clients
+HOST=`hostname`
+sleep 10 # wait for the tunnel to open
+while [ "`ps ax | grep ssh | grep $HOST`" != "" ]; do
+    sleep 1
+done
+
