@@ -13,13 +13,5 @@ cleanup()
     fi
 }
 
-export XAUTHORITY="/var/run/lightdm/root/$DISPLAY"
-
-# link xorg.conf that is created above so that gdm can use it.
-# do not remove it though, if it exists, in case someone wants to
-# create one in extra_boot_script
-ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
-
 unset DISPLAY # prevents lightdm from using Xephyr
 /usr/sbin/lightdm
-
