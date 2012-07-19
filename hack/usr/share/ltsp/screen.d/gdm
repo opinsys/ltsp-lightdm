@@ -1,0 +1,16 @@
+#!/bin/sh
+
+trap cleanup 0 INT QUIT TERM
+
+cleanup()
+{
+    if [ -f "/tmp/.X${TTY}-lock" ]; then
+        rm -f "/tmp/.X${TTY}-lock"
+    fi
+
+    if [ -S "/tmp/.X11-unix/X${TTY}" ]; then
+        rm -f "/tmp/.X11-unix/X${TTY}"
+    fi
+}
+
+/usr/sbin/gdm

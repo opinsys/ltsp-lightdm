@@ -34,8 +34,19 @@ setenv() {
     if [ -z "${XAUTHORITY}" ]; then
         if [ $PAM_SERVICE = "lightdm" ]; then
             export XAUTHORITY="/var/run/lightdm/root/$DISPLAY"
+
+        elif [ $PAM_SERVICE = "gdm" ]; then
+            export XAUTHORITY="$(ls -d1 /var/run/gdm/auth-for-gdm*|head -n 1)/database"
+
+        elif [ $PAM_SERVICE = "xdm" ]; then
+            export XAUTHORITY="$(ls -1 /var/lib/xdm/authdir/authfiles/*|head -n 1)"
+
+        else
+            logger "ltsp-session: unsupported service: $PAM_SERVICE"
+            exit 1
         fi
     fi
+    logger "ltsp-session: using XAUTHORITY file $XAUTHORITY"
 
     #
     # Server scalability.  If there exists a /usr/share/ltsp/get_hosts file, then
