@@ -1,0 +1,1 @@
+auth    required        pam_exec.so expose_authtok /usr/share/ltsp/ltsp-session

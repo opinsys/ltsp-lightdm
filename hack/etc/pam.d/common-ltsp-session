@@ -1,0 +1,1 @@
+session required        pam_exec.so /usr/share/ltsp/ltsp-session
