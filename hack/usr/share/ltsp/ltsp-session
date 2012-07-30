@@ -158,7 +158,7 @@ open_socket () {
         # passowrd.  Since this was stored in the "auth" phase above,
         # shm_askpass will pass it to ssh for it to authenticate with.
         #
-        daemon -i -- ssh -q -N -Y -M -S "${S}" -l ${PAM_USER} ${SERVER}
+        daemon -i -- ssh -q -N -Y -M -K -S "${S}" -l ${PAM_USER} ${SERVER}
 
         #
         # Wait for the socket to actually become available before returning.
