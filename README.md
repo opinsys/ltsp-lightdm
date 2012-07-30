@@ -15,6 +15,10 @@ To test these hacks, install the required packages to chroot, along with the DM 
 	# AND/OR
 	chroot:# apt-get install gdm
 
+Make sure to have the session package installed that is defined in lts.conf.
+
+	server:# apt-get install gnome-fallback-session
+
 Clone this repository to your LTSP master server, adjust the Makefile if necessary (default chroot is `/opt/ltsp/i386`) and run:
 
     server:# make deploy
@@ -42,11 +46,7 @@ In your server's lts.conf, set this directive to launch LightDM or GDM instead o
 	SOUND_DAEMON=pulse
 	FAT_RAM_THRESHOLD=99999
 
-Make sure to have the session package installed that is defined in lts.conf.
-
-	server:# apt-get install gnome-fallback-session
-
-Keep an eye on `/var/log/syslog`
+Keep an eye on `/var/log/syslog` and `/var/log/auth.log`.
 
 
 *While hacking the scripts, it is possible to use the "hotdeploy" make target to copy changes to the client, and test them without rebuilding the image. Adjust the client IP in the Makefile and possibly restart affected services.*
