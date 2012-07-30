@@ -5,7 +5,7 @@ LDM is the login display manager in LTSP systems. LDM login uses two ssh tunnels
 
 These hacks emulate this behaviour by hooking up the the login process from PAM, via pam_exec. The LDM package is required to be installed, but this hack does no modifications to the existing rc.d scripts.
 
-Sound using pulseaudio is working. External USB drives using LTSPFS also work. **LDM_DIRECTX does NOT work** for reasons unknown.
+Sound using pulseaudio is working. External USB drives using LTSPFS also work. LDM_DIRECTX also works when the display manager is configured to allow TCP connections.
 
 To test these hacks, install the required packages to chroot, along with the DM of your choice:
 
@@ -37,7 +37,6 @@ In your server's lts.conf, set this directive to launch LightDM or GDM instead o
 	SCREEN_07=lightdm
 	# SCREEN_07=gdm
 	LDM_SESSION="gnome-session --session=gnome-fallback"
-	LDM_DIRECTX=False
 	LOCALDEV=True
 	SOUND=True
 	SOUND_DAEMON=pulse
