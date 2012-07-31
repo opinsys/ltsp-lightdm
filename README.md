@@ -9,7 +9,7 @@ Sound using pulseaudio is working. External USB drives using LTSPFS also work. L
 
 To test these hacks, install the required packages to chroot, along with the DM of your choice:
 
-	chroot:# apt-get install ldm ltspfs daemon libpam-sshauth
+	chroot:# apt-get install ldm ltspfs daemon libpam-sshauth libnss-sshsock2
 
 	chroot:# apt-get install lightdm lightdm-gtk-greeter
 	# AND/OR
