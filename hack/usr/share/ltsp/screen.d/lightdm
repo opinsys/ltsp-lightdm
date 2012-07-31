@@ -13,5 +13,8 @@ cleanup()
     fi
 }
 
+export NSS_SSHSOCK_SOCKET="/var/run/ldm_socket"
+export NSS_SSHSOCK_HOST="server"
+
 unset DISPLAY # prevents lightdm from using Xephyr
 /usr/sbin/lightdm

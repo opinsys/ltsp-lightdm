@@ -23,7 +23,8 @@ test -n "$PAM_USER" || exit 1
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin
 SERVER="server"
 SOCKETDIR="/var/run"
-SOCKET="${SOCKETDIR}/ldm_socket_$$_$SERVER"
+#SOCKET="${SOCKETDIR}/ldm_socket_$$_$SERVER"
+SOCKET="${SOCKETDIR}/ldm_socket"
 export DISPLAY=${PAM_TTY}
 export LDM_USERNAME=$PAM_USER
 export SSH_ASKPASS="/usr/bin/shm_askpass"
@@ -204,6 +205,11 @@ auth)
     fi
     shm_askpass --write
 
+    # Socket needs to be openened in auth phase for nss-sshsock to work
+    # when lightdm checks that the user account really works
+    open_socket "${SOCKET}"
+    export LDM_SOCKET=${SOCKET}
+
     ;;
 
 
@@ -226,7 +232,7 @@ open_session)
         logger "ltsp-session: run pressh scripts"
         /usr/share/ldm/ldm-script pressh
 
-        open_socket "${SOCKET}"
+#        open_socket "${SOCKET}"
         export LDM_SOCKET=${SOCKET}
         # get the IP address via the ssh tunnel
         export LDMINFO_IPADDR=$(
