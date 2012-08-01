@@ -36,15 +36,8 @@ test -x $(which daemon) || exit 1
 # setenv
 # Sets necessary environment variables.
 #
-setenv() {
-    #
-    # Load lts.conf
-    #
-    PROCESS_LTS_CONF=Yes
-    . /usr/share/ltsp/ltsp_config
-    # NOTE: screen-x-common scripts break login
-    #. /usr/share/ltsp/screen-x-common
 
+setenvxauth() {
     #
     # Use DM's XAUTHORITY
     #
@@ -64,6 +57,18 @@ setenv() {
         fi
     fi
     logger "ltsp-session: using XAUTHORITY file $XAUTHORITY"
+}
+
+setenv() {
+    #
+    # Load lts.conf
+    #
+    PROCESS_LTS_CONF=Yes
+    . /usr/share/ltsp/ltsp_config
+    # NOTE: screen-x-common scripts break login
+    #. /usr/share/ltsp/screen-x-common
+
+    setenvxauth
 
     #
     # Server scalability.  If there exists a /usr/share/ltsp/get_hosts file, then
@@ -186,6 +191,8 @@ case ${PAM_TYPE} in
 auth)
 
     logger "ltsp-session: start auth"
+
+    setenvxauth
 
     #
     # Construct our socket directory.
