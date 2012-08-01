@@ -159,7 +159,7 @@ open_socket () {
         # passowrd.  Since this was stored in the "auth" phase above,
         # shm_askpass will pass it to ssh for it to authenticate with.
         #
-        daemon -i -- ssh -q -N -Y -M -K -S "${S}" -l ${PAM_USER} ${SERVER}
+        daemon -i -- ssh -q -N -Y -M -K -S "${S}" -l ${PAM_USER_REAL} ${SERVER}
 
         #
         # Wait for the socket to actually become available before returning.
@@ -199,6 +199,15 @@ auth)
     # shm_askpass --write will read a password from stdin, and store it in
     # POSIX shared memory.
     #
+
+    # This is a hack to work around shm_askpass problem that requires 
+    # that the user defined in PAM_USER exists. By setting it to 
+    # something else (e.g. root or lightdm) while using shm_askpass we 
+    # can work around the problem. A real fix is needed for this. 
+    # open_socket() is also patched to use PAM_USER_REAL.
+    export PAM_USER_REAL="${PAM_USER}"
+    export PAM_USER="root"
+
     shm_askpass >/dev/null
     if [ $? -eq 0 ]; then
         shm_askpass --delete
@@ -209,6 +218,7 @@ auth)
     # when lightdm checks that the user account really works
     open_socket "${SOCKET}"
     export LDM_SOCKET=${SOCKET}
+    export PAM_USER="${PAM_USER_REAL}"
 
     ;;
 
