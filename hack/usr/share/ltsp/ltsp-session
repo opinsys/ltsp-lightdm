@@ -29,6 +29,9 @@ export DISPLAY=${PAM_TTY}
 export LDM_USERNAME=$PAM_USER
 export SSH_ASKPASS="/usr/bin/shm_askpass"
 
+export NSS_SSHSOCK_SOCKET="/var/run/ldm_socket_0_server"
+export NSS_SSHSOCK_HOST="server"
+
 test -x $(which daemon) || exit 1
 
 
@@ -226,6 +229,22 @@ auth)
     open_socket "${SOCKET}"
     export LDM_SOCKET=${SOCKET}
     export PAM_USER="${PAM_USER_REAL}"
+
+    # This should be moved to somewhere else,
+    # Mount the user home directory through sshfs so that it is available
+    # when lightdm tries to write .dmrc and .xsession-errors files under
+    # it. NFSv4+kerberos and other mount types should also be supported
+    # either through explicit mount commands or through automount.
+
+    export LDM_HOME=$(getent passwd ${PAM_USER}|awk -F: '{print $6};')
+    export PAM_USER_UID=$(getent passwd ${PAM_USER}|awk -F: '{print $3};')
+    export PAM_USER_GID=$(getent passwd ${PAM_USER}|awk -F: '{print $4};')
+
+    mkdir -m 0700 -p "${LDM_HOME}"
+    chown ${PAM_USER_UID}.${PAM_USER_GID} "${LDM_HOME}"
+
+    export SSHFS_HOME=true
+    sshfs -o ${follow_home_symlinks}allow_other,ControlPath=${LDM_SOCKET} ${LDM_SERVER}:${LDM_HOME} ${LDM_HOME}
 
     ;;
 
