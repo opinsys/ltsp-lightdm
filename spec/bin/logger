@@ -1,0 +1,2 @@
+#!/bin/sh
+echo logger $* >> ${SPEC_LOG}

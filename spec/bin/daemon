@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# daemon -i -- (command)
+
+# log the daemon command
+cmd = ARGV.join(" ")
+f = File.open(ENV["SPEC_LOG"],"a")
+f.write "daemon " + cmd + "\n"
+
+# open socket if given in the command
+if ARGV[2] == "ssh"
+  socket = cmd[/-S (\S*)/,1]
+  if socket
+    require "socket"
+    Socket.unix_server_socket socket
+    exit 0
+  end
+end
+
+exit 1

@@ -1,0 +1,2 @@
+#!/bin/sh
+echo shm_askpass $* >> ${SPEC_LOG}
