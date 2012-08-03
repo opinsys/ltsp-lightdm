@@ -1,16 +1,26 @@
 #%PAM-1.0
+# NOTE: libpam-sshauth with libnss-sshsock does not seem to work with GDM
+#       as it works with LightDM! Needs local unix account in client chroot.
 auth    requisite       pam_nologin.so
 auth    required        pam_env.so readenv=1
 auth    required        pam_env.so readenv=1 envfile=/etc/default/locale
 auth    sufficient      pam_succeed_if.so user ingroup nopasswdlogin
-@include common-auth
+#
+# LTSP session / auth
+#
+auth    required        pam_exec.so expose_authtok /usr/share/ltsp/ltsp-session
 auth    optional        pam_gnome_keyring.so
-@include common-ltsp-auth
+
 @include common-account
+
 session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so close
 session required        pam_limits.so
 @include common-session
 session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so open
 session optional        pam_gnome_keyring.so auto_start
-@include common-ltsp-session
+#
+# LTSP session
+#
+session required        pam_exec.so /usr/share/ltsp/ltsp-session
+
 @include common-password
