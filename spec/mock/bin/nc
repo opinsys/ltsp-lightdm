@@ -1,0 +1,2 @@
+#!/bin/sh
+echo nc $* >> ${SPEC_LOG}

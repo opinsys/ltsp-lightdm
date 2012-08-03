@@ -1,0 +1,2 @@
+#!/bin/sh
+echo ldm-script $* >> ${SPEC_LOG}

@@ -3,18 +3,18 @@
 require 'fileutils'
 
 type = ARGV[0]
-username = ARGV[1]
+username = ARGV[1] || "nobody"
 
 case type
 when "passwd"
   # FIXME: read ENV variabels that decide what users to return
   # users = ENV["SPEC_GETENT_USERS"]
   users = [
-    {:username => "usr1", :uid => 1001, :gid => 1001}
+    {:username => username, :uid => 1001, :gid => 1001}
   ]
 
   USER_HOME_BASE = File.absolute_path(File.join(
-    File.dirname(__FILE__), "..", "tmp", "home"))
+    File.dirname(__FILE__), "..", "home"))
 
   passwd = users.collect do |user|
     home = File.join USER_HOME_BASE, user[:username]

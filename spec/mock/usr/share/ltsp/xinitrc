@@ -1,0 +1,2 @@
+#!/bin/sh
+echo xinitrc $* >> ${SPEC_LOG}
