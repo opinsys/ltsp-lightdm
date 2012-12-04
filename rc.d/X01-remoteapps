@@ -1,0 +1,33 @@
+#
+# The following is a script to set up remote apps support on LTSP through LDM
+#
+
+if boolean_is_true "$REMOTE_APPS"; then
+    TMP_MAILCAP_DIR=`mktemp -d`
+    REMOTE_APPS_TMPDIR=`ssh -S ${LDM_SOCKET} ${LDM_SERVER} mktemp -d /tmp/ltsp-remoteapps-XXXXXXXXX`
+    mkdir -p ${REMOTE_APPS_TMPDIR}
+    sshfs -o "allow_other,ControlPath=${LDM_SOCKET}" "${LDM_SERVER}:${REMOTE_APPS_TMPDIR}" "${REMOTE_APPS_TMPDIR}"
+
+    export CLIENT_ENV="${CLIENT_ENV} REMOTE_APPS_TMPDIR=${REMOTE_APPS_TMPDIR}"
+    scp -r -o "ControlPath $LDM_SOCKET" ${LDM_SERVER}:/usr/lib/mime/packages/* ${TMP_MAILCAP_DIR} || true
+    #cp /usr/lib/mime/packages/* ${TMP_MAILCAP_DIR} || true
+
+    if [ -n "${REMOTE_APPS_MIME_PACKAGES}" ]; then
+        local oldifs="${IFS-not set}"
+        IFS=,
+        for item in ${REMOTE_APPS_MIME_PACKAGES}; do
+            # replace all the command field of the file with ltsp-open %s,
+            sed -e 's/^\([^;]*\);\([^;]*\)/\1; ltsp-open %s/' -e 's/\(compose\|composetype\|edit\|print\)=[^;]*/\1=ltsp-open %s/g' -e 's/\(priority\)=[0-9]/\1=9/' ${TMP_MAILCAP_DIR}/$item >> /usr/lib/mime/packages/ltsp
+            rm ${TMP_MAILCAP_DIR}/$item || true
+        done
+        test "$oldifs" = "not set" && unset IFS || IFS="$oldifs"
+    fi
+
+    for file in $TMP_MAILCAP_DIR/*; do
+        name=${file##*/}
+        if [ ! -e /usr/lib/mime/packages/$name ]; then
+            sed -e 's/^\([^;]*\);\([^;]*\)/\1; ltsp-open %s/' -e 's/\(compose\|composetype\|edit\|print\)=[^;]*/\1=ltsp-open %s/g' -e 's/\(priority\)=[0-9]/\1=0/' ${TMP_MAILCAP_DIR}/$name >> /usr/lib/mime/packages/ltsp
+        fi
+    done
+    update-mime
+fi

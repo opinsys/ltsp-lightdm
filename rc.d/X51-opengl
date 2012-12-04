@@ -1,0 +1,5 @@
+# Force indirect rendering when using LDM_DIRECTX so we have some working GL by default
+
+if boolean_is_true "$LDM_DIRECTX" && ! boolean_is_true "$LTSP_FATCLIENT"; then
+    CLIENT_ENV="$CLIENT_ENV LIBGL_ALWAYS_INDIRECT=true"
+fi

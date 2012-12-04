@@ -1,0 +1,12 @@
+# Run Terminal on Client for Debugging Purposes
+# Be sure that one of the terminal apps are installed in the chroot.
+# Set LDM_DEBUG_TERMINAL=yes in lts.conf to enable.
+
+if boolean_is_true "$LDM_DEBUG_TERMINAL"; then
+    for terminal in x-terminal-emulator gnome-terminal konsole xterm; do
+        if [ -x /usr/bin/$terminal ]; then
+            /usr/bin/$terminal &
+            break
+        fi
+    done
+fi

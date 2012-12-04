@@ -1,0 +1,46 @@
+# Get the NBD information (ltsp-cluster doesn't have that in the environment)
+if [ -f /var/cache/ltsp/ltsp_config ]; then
+    . /var/cache/ltsp/ltsp_config
+fi
+if [ -z "$NBD_ROOT_HOST" ] || ([ -z "$NBD_ROOT_PORT" ] && [ -z "$NBD_ROOT_NAME" ]); then
+    return
+fi
+
+if [ -n "$NBD_ROOT_NAME" ]; then
+    nbd-client $NBD_ROOT_HOST /dev/nbd9 -N $NBD_ROOT_NAME
+else
+    nbd-client $NBD_ROOT_HOST $NBD_ROOT_PORT /dev/nbd9
+fi
+NEW=$(dd if=/dev/nbd9 of=/dev/stdout bs=64 count=1 2> /dev/zero | sha1sum -)
+PID=$(nbd-client -c /dev/nbd9)
+nbd-client -d /dev/nbd9
+
+# Make sure we don't have a remaining nbd-client
+if [ -d /proc/$PID ]; then
+    while read COLUMN VALUE; do
+        if [ "$COLUMN" = "PPid:" ]; then
+            kill -9 $VALUE
+            break
+        fi
+    done < /proc/$PID/status
+fi
+
+# Get the current squashfs information
+CURRENT=$(dd if=/dev/nbd0 of=/dev/stdout bs=64 count=1 2> /dev/zero | sha1sum -)
+
+# Exit if we're already running on the latest squashfs
+[ "$NEW" = "$CURRENT" ] && return
+
+(
+for i in $(seq 10 10 100);
+do
+    echo $i
+    sleep 1s
+done
+) | ldm-dialog --progress --auto-close "`eval_gettext "A new version of the system is available, rebooting in 10s."`"
+
+if [ "$?" = "1" ]; then
+    return
+else
+    reboot
+fi

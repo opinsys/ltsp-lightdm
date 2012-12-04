@@ -1,0 +1,18 @@
+# Sourced with .
+#
+# Script to add LDM server address to xauth
+
+# FIXME: $ldm_log stuff are for debugging only, while not harmful
+# we should probably remove it at some point.
+
+if boolean_is_true "$LDM_DIRECTX"; then
+    # FIXME: We probably want something better than head -1, however
+    #        I am currently not sure which line exactly is desired.
+    PROTOCOL=$(xauth -f $XAUTHORITY list | head -1 | awk '{print $2}')
+    KEY=$(xauth -f $XAUTHORITY list | head -1| awk '{print $3}')
+
+    ssh -S ${LDM_SOCKET} ${LDM_SERVER} \
+        "xauth remove ${LDMINFO_IPADDR}${DISPLAY}"
+    ssh -S ${LDM_SOCKET} ${LDM_SERVER} \
+        "xauth add ${LDMINFO_IPADDR}${DISPLAY} ${PROTOCOL} ${KEY}"
+fi

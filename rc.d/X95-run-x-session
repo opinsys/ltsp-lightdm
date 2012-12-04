@@ -1,0 +1,47 @@
+# -*- Shell-Script -*-
+
+# reimplementation of ldm's x_session function in shell, so that it's
+# environment can be modified by other rc.d scripts (for .dmrc
+# processing and such)
+
+
+# Handle localdev
+
+if boolean_is_true "$LOCALDEV"; then
+    MY_LOCALDEV="; /usr/sbin/ltspfsmounter all cleanup"
+fi
+
+# Xsession requires a single parameter
+[ -n "$LDM_SESSION" ] && LDM_SESSION="\"$LDM_SESSION\""
+
+if ! boolean_is_true "$LDM_NOMAD"; then
+    if ! boolean_is_true "$LTSP_FATCLIENT"; then
+        ssh -Y -t -S $LDM_SOCKET $LDM_SERVER "$CLIENT_ENV $MY_LANG $MY_DISP $MY_SCANNER $MY_SOUND $LDM_XSESSION $LDM_SESSION < /dev/null > /dev/null $MY_LOCALDEV"
+    else
+        ICEAUTHORITY="$(dirname $XAUTHORITY)/ICEauthority"
+        # Using pam_ck_connector to make fat client sessions ConsoleKit-aware
+        # FIXME: su doesn't read the current process environment, so we're using
+        # /etc/security/pam_env.conf temporarily, which also affects non-X sessions
+        if [ -x /usr/lib/ConsoleKit/ck-get-x11-display-device ] \
+            && [ -f /etc/security/pam_env.conf ] \
+            && CKCON_X11_DISPLAY_DEVICE=$(/usr/lib/ConsoleKit/ck-get-x11-display-device 2>/dev/null)
+        then
+            CKCON_X11_DISPLAY="$DISPLAY"
+            sed -i '/^CKCON_X11_DISPLAY/d' /etc/security/pam_env.conf
+            echo "CKCON_X11_DISPLAY DEFAULT=$CKCON_X11_DISPLAY" >> /etc/security/pam_env.conf
+            echo "CKCON_X11_DISPLAY_DEVICE DEFAULT=$CKCON_X11_DISPLAY_DEVICE" >> /etc/security/pam_env.conf
+        fi
+
+        su - ${LDM_USERNAME} -c "$CLIENT_ENV $MY_LANG DISPLAY=$DISPLAY ICEAUTHORITY=$ICEAUTHORITY XAUTHORITY=$XAUTHORITY $LDM_XSESSION $LDM_SESSION"
+
+        # Unmount any removable devices mounted by the user
+        for d in $(mount | awk '/uhelper=udisks/ {print $1}; /uhelper=devkit/ {print $1}'); do
+            umount "$d" &
+        done
+    fi
+fi
+
+if [ "$SOUND_DAEMON" = "esd" ]; then
+    kill $ESD_PID
+    wait $ESD_PID
+fi

@@ -1,0 +1,31 @@
+# Create tmpdir for localapps menu
+if [ -x "/usr/bin/ltsp-genmenu" ]; then
+	if boolean_is_true "${LOCAL_APPS:-True}" && boolean_is_true "$LOCAL_APPS_MENU" && ! boolean_is_true "$LTSP_FATCLIENT"; then
+        # get a temporary directory on the server
+        TMP_XDG_MENU="$(ssh -S ${LDM_SOCKET} ${LDM_SERVER} mktemp -d /tmp/ltsp-localapps-${LDM_USERNAME}-XXXXXX)"
+        export TMP_XDG_MENU
+        CLIENT_ENV="${CLIENT_ENV} XDG_DATA_DIRS=${TMP_XDG_MENU}/:/usr/local/share/:/usr/share/"
+
+        # Make the local temporary directory
+        TMP_XDG_DIR_LOCAL="$(mktemp -d /tmp/ltsp-localapps-${LDM_USERNAME}-XXXXXX)"
+        export TMP_XDG_DIR_LOCAL
+
+        # Generate the localapp menu
+        /usr/bin/ltsp-genmenu install
+
+        # now, scp the directory to the /tmp dir on the server
+        scp -r -o "ControlPath $LDM_SOCKET" ${TMP_XDG_DIR_LOCAL}/* ${LDM_SERVER}:${TMP_XDG_MENU}
+
+        # Clean up local
+        rm -rf ${TMP_XDG_DIR_LOCAL} || true
+    elif boolean_is_true "$LTSP_FATCLIENT" && [ -n "${REMOTE_APPS_MENU_ITEMS}" ]; then
+        # Make the remoteapps temporary directory
+        TMP_XDG_DIR_LOCAL="$(mktemp -d /tmp/ltsp-remoteapps-${LDM_USERNAME}-XXXXXX)"
+        export TMP_XDG_DIR_LOCAL
+		TMP_SHARE="$(mktemp -d /tmp/share-XXXXXX)"
+		sshfs -o "allow_other,ControlPath=${LDM_SOCKET}" "${LDM_SERVER}:/usr/share/" "${TMP_SHARE}"
+		/usr/bin/ltsp-genmenu install
+		umount "${TMP_SHARE}"
+	fi
+fi
+

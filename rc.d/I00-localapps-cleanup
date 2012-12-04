@@ -1,0 +1,19 @@
+# Just in case someone hits ctrl-alt-backspace, let's cleanup some thing here
+
+if boolean_is_true "$LOCAL_APPS"; then
+    # Clean up cups config
+    [ -r "/etc/cups/client.conf" ] && rm -f /etc/cups/client.conf
+
+    # Copy back passwd and group
+    LOCALAPPS_CACHE=/var/cache/ltsp-localapps
+    for i in passwd group; do
+        [ -e "${LOCALAPPS_CACHE}/${i}" ] && cp "${LOCALAPPS_CACHE}/${i}" /etc/${i}
+    done
+fi
+
+# Created by remote apps
+if [ -w "/usr/lib/mime/packages/ltsp" ]; then
+    rm -f /usr/lib/mime/packages/ltsp
+    update-mime
+fi
+

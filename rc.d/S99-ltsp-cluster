@@ -1,0 +1,40 @@
+# This script is specific to ltsp-cluster
+if [ ! -f /etc/ltsp/getltscfg-cluster.conf ]; then
+    return
+fi
+
+# Check for existing session
+. /etc/ltsp/getltscfg-cluster.conf
+
+#FIXME: This should be handled through getltscfg-cluster
+sessionlist=$(wget -q -O - -T 1 -t 1 "http://${SERVER}/ltsp-cluster-control/Terminal/session.php?action=getsessions/username=${LDM_USERNAME}")
+if [ -n "$sessionlist" ]; then
+    if ldm-dialog --question "`eval_gettext "The system thinks you are logged in elsewhere.  Would you like to close the other session and continue to log in?"`" ; then
+        ssh -S ${LDM_SOCKET} ${LDM_SERVER} 'touch .ltsp-cluster-accountmanager.kill'
+        for server in $sessionlist; do
+            if [ "${server}" = "${LDM_SERVER}" ]; then
+                sshdProc=$(ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} '/usr/bin/pgrep -n -u $USER sshd')
+                allsshdProcs=$(ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} '/usr/bin/pgrep -u $USER sshd')
+                procs=
+                for i in $allsshdProcs; do
+                    match=
+                    for j in $sshdProc; do
+                        [ "$i" = "$j" ] && match=1·
+                    done
+                    [ -z "$match" ] && procs="$procs $i"
+                done
+                ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} "/bin/kill $procs"
+                sleep 1
+                ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} "/bin/kill -9 $procs"
+            else
+                echo "kill ${LDM_USERNAME}" | nc $nc_q_param ${server} 8001
+            fi
+        done
+        ssh -S ${LDM_SOCKET} ${LDM_SERVER} 'rm .ltsp-cluster-accountmanager.kill'
+    else
+        kill -9 ${PPID}
+    fi
+fi
+
+# Register the session with the Control Center
+getltscfg-cluster -l login

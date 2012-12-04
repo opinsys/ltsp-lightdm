@@ -1,0 +1,52 @@
+#
+# sourced with .
+#
+# Script to check if user is already logged in and offers to kill all of his
+# procs (asside from sshd and SENTINEL related ones) before continuing
+#
+
+if boolean_is_true "$LDM_LIMIT_ONE_SESSION"; then
+
+    # If user is root, just exit from here or we'll kill all the sessions on the server
+    if [ "$USER" = "root" ]; then
+        return
+    fi
+
+    # Since we use a socket, by taking out the newest sshd proc from the kill list,
+    # we should preserve our socket.
+    sshdProc=$(ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} '/usr/bin/pgrep -n -u $USER sshd')
+
+    # Let's check if there is an old session or simply stale prcoesses
+    allsshdProcs=$(ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} '/usr/bin/pgrep -u $USER sshd')
+    oldSessions=0
+    for p in $allsshdProcs; do
+        if [ "$p" != "$sshdProc" ]; then
+            oldSessions=$(($oldSessions+1))
+        fi
+    done
+
+    # Take out this sshd and kids
+    procs=
+    for i in $allsshdProcs; do
+        match=
+        for j in $sshdProc; do
+            [ "$i" = "$j" ] && match=1
+        done
+        [ -z "$match" ] && procs="$procs $i"
+    done
+
+    if [ $oldSessions -gt 0 ] && boolean_is_true "$LDM_LIMIT_ONE_SESSION_PROMPT" ; then
+        ldm-dialog --question "`eval_gettext "The system thinks you are logged in elsewhere.  Would you like to close the other session and continue to log in?"`"
+        ret=$?
+    else
+        ret=0
+    fi
+
+    if [ "$ret" = 0 ]; then
+        ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} "/bin/kill $procs"
+        sleep 1
+        ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} "/bin/kill -9 $procs"
+    else
+        /bin/kill -9 ${PPID}
+    fi
+fi

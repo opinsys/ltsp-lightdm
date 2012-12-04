@@ -1,0 +1,7 @@
+# This script adds $PRINTER and $PRINTER_LIST to the user's environment
+
+# LDM_PRINTER_DEFAULT is used to set the user's default printer
+# LDM_PRINTER_LIST is the list of printers to display (requires a patched cups)
+
+[ -n "$LDM_PRINTER_DEFAULT" ] && export CLIENT_ENV="${CLIENT_ENV} PRINTER=${LDM_PRINTER_DEFAULT}"
+[ -n "$LDM_PRINTER_LIST" ] || [ "${LDM_PRINTER_LIST+xxx}" = "xxx" ] && export CLIENT_ENV="${CLIENT_ENV} PRINTER_LIST=${LDM_PRINTER_LIST}"

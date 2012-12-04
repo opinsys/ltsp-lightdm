@@ -1,0 +1,5 @@
+# Turn on compositing to improve performance and lower bandwidth usage
+
+if boolean_is_true "$LDM_XCOMPMGR" && [ -n "$(which xcompmgr)" ]; then
+    xcompmgr -a&
+fi

@@ -1,0 +1,21 @@
+# Make sure that this script is always the latest to be called !!!
+
+# Check if the user request a shutdown or a reboot
+if [ -f /tmp/ldm-logout-action ]; then
+    case "$(cat /tmp/ldm-logout-action)" in
+        shutdown)
+            poweroff
+        ;;
+        reboot)
+            reboot
+        ;;
+        *)
+        ;;
+    esac
+fi
+
+# Also check with xprop, this way localapps are not required to be enabled.
+# Don't reboot now to avoid ghost processes, store the result in a file
+# to be processed by screen-session.d/XS00-halt-reboot.
+xprop -root -notype LDM_LOGOUT_ACTION | sed -ne 's/^LDM_LOGOUT_ACTION = "\(.*\)"/\1/p' > /var/run/ldm-logout-action || true
+xprop -root -remove LDM_LOGOUT_ACTION

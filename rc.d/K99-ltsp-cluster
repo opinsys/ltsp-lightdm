@@ -1,0 +1,5 @@
+# Register the session with the Control Center
+
+if [ -f /etc/ltsp/getltscfg-cluster.conf ]; then
+    getltscfg-cluster -l logout
+fi

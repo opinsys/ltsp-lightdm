@@ -1,0 +1,8 @@
+#
+# The following is a script to set up remote apps support on LTSP through LDM
+#
+
+if boolean_is_true "$REMOTE_APPS"; then
+    # Run ltsp-remoteappsd as root on client side
+    PATH=$PATH:/usr/share/ltsp LDM_SOCKET=${LDM_SOCKET} LDM_SERVER=${LDM_SERVER} ltsp-remoteappsd &
+fi

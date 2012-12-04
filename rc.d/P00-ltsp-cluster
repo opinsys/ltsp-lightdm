@@ -1,0 +1,16 @@
+# Tell the Control Center that ldm is loaded
+
+if [ -f /etc/ltsp/getltscfg-cluster.conf ]; then
+    # Initialize ssh
+    mkdir -p /root/.ssh
+    rm -f /root/.ssh/*
+    (echo -n "$LDM_SERVER " ; echo "getkey" | nc $nc_q_param $LDM_SERVER 8001 && echo) > /root/.ssh/known_hosts
+
+    if ( boolean_is_true "$LDM_AUTOLOGIN" || boolean_is_true "$LDM_GUESTLOGIN" ); then
+        login=$(echo "username" | nc $nc_q_param $LDM_SERVER 8001 | awk '{print $2}')
+        if [ "$login" = "$LDM_USERNAME" ]; then
+            ssh-keygen -b 768 -C root@ltsp -t rsa -N "" -f /root/.ssh/id_rsa > /dev/null
+            echo "`cat /root/.ssh/id_rsa.pub`" | nc $nc_q_param $LDM_SERVER 8001 > /dev/null
+        fi
+    fi
+fi

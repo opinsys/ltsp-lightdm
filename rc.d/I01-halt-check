@@ -1,0 +1,15 @@
+# Get the halt time for the thin client
+[ "$(date -d $SHUTDOWN_TIME +%s)" -lt "$(date +%s)" ] || return
+(
+for i in $(seq 10 10 100);
+do
+    echo $i
+    sleep 1s
+done
+) | ldm-dialog --progress --auto-close "`eval_gettext "This system will halt in 10s."`"
+
+if [ "$?" = "1" ]; then
+    return
+else
+    halt
+fi

@@ -1,0 +1,95 @@
+# LDM_SESSION may be defined as either a desktop file name:
+# LDM_SESSION=LXDE for /usr/share/xsessions/LXDE.desktop
+#
+# or the backwards compatible mode containing the whole command, e.g.:
+# LDM_SESSION="gnome-session --session=gnome-classic"
+#
+# If it matches the Exec line of xsession.desktop files,
+# it writes the to ~/.dmrc corresponding xsession.desktop file name, e.g.
+# Session=gnome-classic
+# So there's some code overhead for converting between those two.
+#
+# LDM_FORCE_SESSION is only implemented as desktop file name selection, 
+# and prevents the user from selecting other sessions.
+#
+# LDM_SELECT_SESSION should only be exported from ldm directly, and is not 
+# intended for use in lts.conf, though you could shoot yourself in the foot 
+# with it if you really wanted.
+
+# for code readability
+do_ssh(){
+    ssh -S "$LDM_SOCKET" "$LDM_SERVER" "$@" 2>/dev/null
+}
+
+# $1 = key, case sensitive
+get_dmrc_key() {
+    echo "$dmrc" | sed -n "s/^$1=//p"
+}
+
+# If the desktop.session file exists, set LDM_SESSION to its Exec line
+ldm_session_from_desktop_file() {
+    local desktop session_exec
+    desktop="$1"
+
+    if [ -n "$desktop" ]; then
+        session_exec=$(do_ssh sed -n "s/^Exec=//p" "/usr/share/xsessions/$desktop.desktop")
+        if [ -n "$session_exec" ]; then
+            LDM_SESSION="$session_exec"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# $1 = key, case sensitive
+# $2 = value
+put_dmrc_key() {
+    # Don't do anything if the key already contains that value
+    test "$(get_dmrc_key "$1")" = "$2" && return
+
+    dmrc=$(echo "$dmrc" | sed '/\[Desktop\]/d')
+    dmrc=$(echo "$dmrc" | sed "/^$1=/d")
+    dmrc="[Desktop]
+$1=$2
+$dmrc"
+    changed=true
+}
+
+dmrc=$(do_ssh cat .dmrc)
+if ! ldm_session_from_desktop_file "$LDM_FORCE_SESSION"; then
+    case "$LDM_SELECTED_SESSION" in
+        failsafe)
+            # No need to access the user's .dmrc for failsafe sessions (man Xsession)
+            ;;
+        default|'')
+            ldm_session_from_desktop_file "$(get_dmrc_key "Session")" && break
+            ldm_session_from_desktop_file "$LDM_SESSION" && break
+            ;;
+        *)
+            LDM_SESSION="$LDM_SELECTED_SESSION"
+            # If there's a corresponding xsession.desktop file, save its name to .dmrc
+            dmrc_session=$(do_ssh "grep -lR '^Exec=$LDM_SESSION$' /usr/share/xsessions/ | sed -n '/\/usr\/share\/xsessions\/\(.*\)\.desktop/{s//\1/p;q}'")
+            if [ -n "$dmrc_session" ]; then
+                put_dmrc_key "Session" "$dmrc_session"
+            fi
+            ;;
+    esac
+fi
+
+if [ -n "$LDM_FORCE_LANGUAGE" ]; then
+    LDM_LANGUAGE="$LDM_FORCE_LANGUAGE"
+else
+    case "$LDM_LANGUAGE" in
+        default|'')
+            # If the user has a language stored in his .dmrc, use it
+            LDM_LANGUAGE=$(get_dmrc_key "Language")
+            ;;
+        *)
+            put_dmrc_key "Language" "$LDM_LANGUAGE"
+            ;;
+    esac
+fi
+
+if [ -n "$changed" ]; then
+    do_ssh "echo '$dmrc' > .dmrc"
+fi

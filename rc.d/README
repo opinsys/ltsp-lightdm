@@ -1,0 +1,262 @@
+These scripts originate from ltsp-client-core and ldm packages from
+Ubuntu 12.10.
+
+https://launchpad.net/~ltsp-upstream
+
+https://code.launchpad.net/~ltsp-upstream/ltsp/ltsp-trunk
+https://code.launchpad.net/~ltsp-upstream/ltsp/ldm-trunk
+
+The scripts are copied here to make hacking them easier while
+developing Puavo integrations. Copyrights and licensing information
+for original packages are below.
+
+---------------- ltsp-client-core/copyright ------------------------
+
+This package was created by Matt Zimmerman <mdz@ubuntu.com> in May of
+2005.
+
+Modifications for use with debian by Vagrant Cascadian <vagrant@freegeek.org>
+in August of 2005.
+
+The upstream source tree can be found on launchpad:
+
+ bzr get http://bazaar.launchpad.net/~ltsp-upstream/ltsp/ltsp-trunk
+
+The debian dir for ltsp packages in Debian is maintained in bzr:
+
+ bzr get http://bzr.debian.org/bzr/pkg-ltsp/ltsp-debian-packaging
+
+The original LTSP sources can be downloaded from: http://ltsp.org
+
+
+The following components have been copied from the LTSP project's build environment
+(LBE) tree:
+
+client/screen.d/shell
+client/screen.d/startx
+client/screen.d/telnet
+client/screen_session
+
+with the following copyright:
+
+Copyright (c) 1999-2006 by James A. McQuillan (McQuillan Systems, LLC)
+This software is licensed under the Gnu General Public License version 2
+
+
+server/nbdswapd and client/screen.d/sdm carry the following copyright:
+
+copyright 2005-2006 Vagrant Cascadian <vagrant@freegeek.org>, distributed under
+the terms of the GNU General Public License version 2 or any later version.
+
+
+Other code has been written from scratch for this package, and carries
+the following copyright:
+
+Copyright (C) 2005 Canonical Ltd.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA
+
+On Debian and Ubuntu systems, a copy of the GNU General Public License version
+2 may be found in the file /usr/share/common-licenses/GPL-2.
+
+---------------- ltsp-client-core/copyright ------------------------
+
+
+---------------- ldm/copyright ------------------------
+
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0
+Upstream-Contact: LTSP upstream team <ltsp-developers@lists.sourceforge.net>
+Upstream-Name: ldm
+Upstream-Source: http://bazaar.launchpad.net/~ltsp-upstream/ltsp/ldm-trunk/
+
+Files: debian/*
+Copyright: 2007-2012 Vagrant Cascadian <vagrant@freegeek.org>
+ 2009 Ryan Niebur <ryanryan52@gmail.com>
+License: GPL-2+
+
+Files: misc/ldm-dialog.c
+Copyright: 2009 Ryan Niebur <ryanryan52@gmail.com>
+License: GPL-2+
+
+Files: gtkgreet/greeter.c
+Copyright: 2007-2008 Oliver Grawert <ogra@canonical.com>
+ 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Warren Togami <wtogami@redhat.com>
+ 2008 Stéphane Graber <stgraber@ubuntu.com>
+ 2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Vagrant Cascadian <vagrant@freegeek.org>
+ 2008 John Ellson <john.ellson@comcast.net>
+ 2008 Gideon Romm <gadi@ltsp.org>
+ 2008 Jigish Gohil <cyberorg@opensuse.org>
+ 2008 Wolfgang Schweer <schweer@cityweb.de>
+ 2008 Toshio Kuratomi
+License: GPL-2
+
+Files: gtkgreet/langwin.c
+Copyright: 2007 Oliver Grawert <ogra@canonical.com>
+ 2007 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Vagrant Cascadian <vagrant@freegeek.org>
+ 2008 Jigish Gohil <cyberorg@opensuse.org>
+ 2008 Wolfgang Schweer <schweer@cityweb.de>
+ 2009 Ryan Niebur <RyanRyan52@gmail.com>
+License: GPL-2
+
+Files: gtkgreet/sesswin.c
+Copyright: 2007 Oliver Grawert <ogra@canonical.com>
+ 2007 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Ryan Niebur <RyanRyan52@gmail.com>
+License: GPL-2
+
+Files: gtkgreet/hostwin.c
+Copyright: 2007 Oliver Grawert <ogra@canonical.com>
+ 2008 Toshio Kuratomi
+License: GPL-2
+
+Files: gtkgreet/prefs.h gtkgreet/prefs.c gtkgreet/prefwin.c gtkgreet/prefwin.h
+Copyright:
+  2010 Simon Poirier, <simon.poirier@revolutionlinux.com>
+License: GPL-2+
+
+Files: src/logging.c
+License: GPL-2+
+Copyright: 
+  2010 Stéphane Graber <stgraber@ubuntu.com>, Revolution Linux
+
+Files: src/ldm.c
+Copyright: 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2005-2007 Oliver Grawert <ogra@ubuntu.com>
+ 2007-2008 Gideon Romm <gadi@ltsp.org>
+ 2008 Vagrant Cascadian <vagrant@freegeek.org>
+ 2008 Warren Togami <wtogami@redhat.com>
+ 2008 Ryan Niebur <RyanRyan52@gmail.com>
+License: GPL-2+
+
+Files: src/sshutils.c
+Copyright: 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Ryan Niebur <RyanRyan52@gmail.com>
+ 2008 Warren Togami <wtogami@redhat.com>
+ 2008 Vagrant Cascadian <vagrant@freegeek.org>
+ 2008 Toshio Kuratomi
+License: GPL-2+
+
+Files: src/get_ip.c
+Copyright: 2007 Oliver Grawert <ogra@canonical.com>
+ 2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Warren Togami <wtogami@redhat.com>
+ 2008 Toshio Kuratomi
+ 2008-2009 Ryan Niebur <RyanRyan52@gmail.com>
+License: GPL-2
+
+Files: src/greeter_iface.c
+Copyright: 2007 Oliver Grawert <ogra@canonical.com>
+ 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2007-2008 Vagrant Cascadian <vagrant@freegeek.org>
+ 2008 Ryan Niebur <RyanRyan52@gmail.com>
+ 2008 John Ellson <john.ellson@comcast.net>
+ 2008 Gideon Romm <gadi@ltsp.org>
+ 2008 Warren Togami <wtogami@redhat.com>
+ 2008 Francis Giraldeau <francis.giraldeau@revolutionlinux.com>
+ 2008 Toshio Kuratomi
+License: GPL-2+
+
+Files: src/ldminfo.c
+Copyright: 2007 Francis Giraldeau, <francis.giraldeau@revolutionlinux.com>
+ 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008-2009 Ryan Niebur <ryanryan52@gmail.com>
+License: GPL-2+
+
+Files: src/ldm-getenv-bool.c
+Copyright: 2007-2008 Scott Balneaves <sbalneav@ltsp.org>
+ 2008 Ryan Niebur <RyanRyan52@gmail.com>
+ 2008 Vagrant Cascadian <vagrant@freegeek.org>
+License: GPL-2+
+
+Files: generate_locale_list.py
+Copyright: 2009 Ryan Niebur <RyanRyan52@gmail.com>
+ 2009 Vagrant Cascadian <vagrant@freegeek.org>
+ 2009 Stéphane Graber <stgraber@ubuntu.com>
+License: GPL-2+
+
+Files: man/ldm.1
+Copyright: 2007 Canonical Ltd
+License: GPL-2+
+
+Files: wwm/*
+Copyright:
+  2010 Scott Balneaves
+  1999-2001 Ciaran Anscomb <ciarana@rd.bbc.co.uk>
+  1998-2000 Decklin Foster
+  1994 David Hogan
+  2010-2012 Stéphane Graber
+  2010 David Goulet
+  2010 Simon Poirier
+  2010 Vincent Vinet
+License: evilwm-aewm-9wm
+
+License: GPL-2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; version 2.
+  .
+  On Debian and Ubuntu systems, a copy of the GNU General Public License version
+  2 may be found in the file /usr/share/common-licenses/GPL-2.
+
+License: GPL-2+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+  .
+  On Debian and Ubuntu systems, a copy of the GNU General Public License version
+  2 may be found in the file /usr/share/common-licenses/GPL-2.
+
+License: evilwm-aewm-9wm
+  This is free software.  You can do what you want to it, but if it
+  breaks something, you get to pay for the counselling.  The code was
+  originally based on aewm, so this is distributed under the same terms,
+  which follow.
+  .
+  AEWM LICENCE
+  .
+  Copyright (c) 1998-2000 Decklin Foster.
+  .
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS", WITHOUT ANY EXPRESS
+  OR IMPLIED WARRANTIES OF ANY KIND. IN NO EVENT SHALL THE AUTHOR BE
+  HELD LIABLE FOR ANY DAMAGES CONNECTED WITH THE USE OF THIS PROGRAM.
+  .
+  You are granted permission to copy, publish, distribute, and/or sell
+  copies of this program and any modified versions or derived works,
+  provided that this copyright and notice are not removed or altered.
+  .
+  Portions of the code were based on 9wm, which contains this license:
+  .
+  > 9wm is free software, and is Copyright (c) 1994 by David Hogan.
+  > Permission is granted to all sentient beings to use this software,
+  > to make copies of it, and to distribute those copies, provided
+  > that:
+  >
+  >     (1) the copyright and licence notices are left intact
+  >     (2) the recipients are aware that it is free software
+  >     (3) any unapproved changes in functionality are either
+  >           (i) only distributed as patches
+  >       or (ii) distributed as a new program which is not called 9wm
+  >               and whose documentation gives credit where it is due
+  >     (4) the author is not held responsible for any defects
+  >         or shortcomings in the software, or damages caused by it.
+  >
+  > There is no warranty for this software.  Have a nice day.
+
+---------------- ldm/copyright ------------------------

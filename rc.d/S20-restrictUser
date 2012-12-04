@@ -1,0 +1,24 @@
+# This script should be placed in the ldm rc.d/ directory, say:
+#     /opt/ltsp/i386/usr/lib/ldm/rc.d/S20-restrictUser
+
+# get lts.conf vars (not needed - should already be sourced)
+#. /usr/lib/ltsp/ltsp_config
+
+if [ -n "${LDM_USER_ALLOW}" ]; then
+    # Username entered in greeter (not needed in newer versions of LDM)
+    [ -z "${LDM_USERNAME}" ] && LDM_USERNAME=$(ssh -X -S ${LDM_SOCKET} ${LDM_SERVER} 'echo $USER')
+
+    # Look for matching user in allowed users
+    MATCH=
+    oldifs="${IFS-not set}"
+    IFS=,
+    for i in ${LDM_USER_ALLOW}; do
+        [ "${i}" = "${LDM_USERNAME}" ] && MATCH=1
+    done
+    test "$oldifs" = "not set" && unset IFS || IFS="$oldifs"
+
+    if [ -z "${MATCH}" ]; then
+        ldm-dialog --message "`eval_gettext "User \\${LDM_USERNAME} is not allowed to log into this workstation."`"
+        /bin/kill -9 ${PPID}
+    fi
+fi

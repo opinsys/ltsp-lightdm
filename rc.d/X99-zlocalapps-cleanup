@@ -1,0 +1,45 @@
+if boolean_is_true "$LOCAL_APPS"; then
+    # Copy back passwd and group
+    for i in passwd group; do
+        [ -e "${LOCALAPPS_CACHE}/${i}" ] && cp "${LOCALAPPS_CACHE}/${i}" /etc/${i}
+    done
+
+    # Clean up cups config
+    [ -r "/etc/cups/client.conf" ] && rm -f /etc/cups/client.conf
+
+    # Clean up localapps menu
+    if boolean_is_true "$LOCAL_APPS_MENU" && [ -n "${TMP_XDG_MENU}" ]; then
+        if [ -S ${LDM_SOCKET} ]; then
+            ssh -S ${LDM_SOCKET} ${LDM_SERVER} rm -rf "${TMP_XDG_MENU}"
+        fi
+    fi
+
+    # Unmount sshfs and remove the mount dir
+    if [ -n "$SSHFS_HOME" ]; then
+        fusermount -uqz ${LDM_HOME}
+        rmdir ${LDM_HOME}
+    fi
+
+    # Unmount other mounts
+    if [ -n "${LOCAL_APPS_EXTRAMOUNTS}" ]; then
+        oldifs="${IFS-not set}"
+        IFS=','
+        for extradir in ${LOCAL_APPS_EXTRAMOUNTS}; do
+            fusermount -uqz "${extradir}"
+            rmdir "${extradir}"
+        done
+        test "$oldifs" = "not set" && unset IFS || IFS="$oldifs"
+    fi
+
+    rm $LOCALAPPSD_PIDFILE
+fi
+
+# Clean up remote apps tmpdir
+if boolean_is_true "${REMOTE_APPS}" && [ -n "${REMOTE_APPS_TMPDIR}" ] ; then
+    fusermount -uqz "${REMOTE_APPS_TMPDIR}"
+    rmdir "${REMOTE_APPS_TMPDIR}"
+    if [ -w "/usr/lib/mime/packages/ltsp" ]; then
+        rm -f /usr/lib/mime/packages/ltsp
+        update-mime
+    fi
+fi

@@ -1,0 +1,58 @@
+# -*- Shell-Script -*- 
+
+# Set up the LTSP_CLIENT and LTSP_CLIENT_HOSTNAME environment variables.
+# We may not want to force set this:
+
+CLIENT_ENV="$CLIENT_ENV LTSP_CLIENT=$LDMINFO_IPADDR LTSP_CLIENT_HOSTNAME=$(hostname)"
+test -n "$LTSP_FATCLIENT" && CLIENT_ENV="$CLIENT_ENV LTSP_FATCLIENT=$LTSP_FATCLIENT"
+test -n "$LTSP_CLIENT_MAC" && CLIENT_ENV="$CLIENT_ENV LTSP_CLIENT_MAC=$LTSP_CLIENT_MAC"
+export CLIENT_ENV
+# Set our language, if a different one is picked.
+
+if [ -z "$LDM_LANGUAGE" ]; then
+    LDM_LANGUAGE=$LANG
+fi
+
+MY_LANG="LC_ALL=$LDM_LANGUAGE LANGUAGE=$LDM_LANGUAGE LANG=$LDM_LANGUAGE"
+export MY_LANG
+
+# Set the DISPLAY env, if not running over encrypted ssh
+
+if boolean_is_true "$LDM_DIRECTX"; then
+    MY_DISP="DISPLAY=${LDMINFO_IPADDR}${DISPLAY}"
+    export MY_DISP
+fi
+
+# Handle scanner
+if boolean_is_true "$SCANNER"; then
+    MY_SCANNER="SANE_NET_HOSTS=$LDMINFO_IPADDR"
+    export MY_SCANNER
+    # Allow the application server to connect to saned
+    if [ -f /etc/sane.d/saned.conf ]; then
+       echo $LDM_SERVER > /etc/sane.d/saned.conf
+    fi
+fi
+
+# Handle sound
+
+if boolean_is_true "$SOUND"; then
+    if [ -z "$SOUND_DAEMON" ]; then
+        SOUND_DAEMON=pulse
+    fi
+    case $SOUND_DAEMON in
+        pulse)
+            MY_SOUND="PULSE_SERVER=tcp:$LDMINFO_IPADDR:4713 ESPEAKER=$LDMINFO_IPADDR:16001 LTSP_ALSA_DEFAULT=pulse"
+        ;;
+
+        esd)
+            esd -nobeeps -public -tcp &
+            ESD_PID=$!
+            MY_SOUND="ESPEAKER=$LDMINFO_IPADDR:16001"
+        ;;
+
+        nasd)
+            MY_SOUND="AUDIOSERVER=$LDMINFO_IPADDR:0"
+        ;;
+    esac
+    export MY_SOUND
+fi
