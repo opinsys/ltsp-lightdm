@@ -30,9 +30,6 @@ export LDM_USERNAME=$PAM_USER
 export LDM_SERVER=$SERVER
 export SSH_ASKPASS="/usr/bin/shm_askpass"
 
-export NSS_SSHSOCK_SOCKET="$SOCKET"
-export NSS_SSHSOCK_HOST="$SERVER"
-
 test -x $(which daemon) || exit 1
 
 
@@ -167,7 +164,7 @@ open_socket () {
     S=$1
 
     if [ -n "${DISPLAY}" ]; then
-        daemon -i -- ssh -q -N -Y -M -K -S "${S}" -l ${PAM_USER_REAL} ${SERVER}
+        daemon -i -- ssh -K -q -N -Y -M -K -S "${S}" -l ${PAM_USER} ${LDM_SERVER}
 
         waitfor "${S}"
 
@@ -204,56 +201,6 @@ auth)
         mkdir -p "${SOCKETDIR}"
     fi
 
-    #
-    # We're authenticating, so we'll store the auth token using shm_askpass
-    # shm_askpass --write will read a password from stdin, and store it in
-    # POSIX shared memory.
-    #
-
-    # This is a hack to work around shm_askpass problem that requires
-    # that the user defined in PAM_USER exists. By setting it to
-    # something else (e.g. root or lightdm) while using shm_askpass we
-    # can work around the problem. A real fix is needed for this.
-    # open_socket() is also patched to use PAM_USER_REAL.
-    export PAM_USER_REAL="${PAM_USER}"
-    export PAM_USER="root"
-
-    shm_askpass >/dev/null
-    if [ $? -eq 0 ]; then
-        shm_askpass --delete
-    fi
-    shm_askpass --write
-
-    # Socket needs to be openened in auth phase for nss-sshsock to work
-    # when lightdm checks that the user account really works
-    open_socket "${SOCKET}"
-    export LDM_SOCKET=${SOCKET}
-    export PAM_USER="${PAM_USER_REAL}"
-
-    # This should be moved to somewhere else,
-    # Mount the user home directory through sshfs so that it is available
-    # when lightdm tries to write .dmrc and .xsession-errors files under
-    # it. NFSv4+kerberos and other mount types should also be supported
-    # either through explicit mount commands or through automount.
-    logger "ltsp-session: request user data via libnss-sshsock..."
-
-    export LDM_HOME=$(getent passwd ${PAM_USER}|awk -F: '{print $6};')
-    export PAM_USER_UID=$(getent passwd ${PAM_USER}|awk -F: '{print $3};')
-    export PAM_USER_GID=$(getent passwd ${PAM_USER}|awk -F: '{print $4};')
-
-    if [ -z $PAM_USER_UID ]; then
-        logger "ltsp-session: could not get data for user $PAM_USER, aborting"
-        exit 1
-    fi
-    logger "ltsp-session: user $PAM_USER, uid $PAM_USER_UID, gid $PAM_USER_GID"
-
-    mkdir -m 0700 -p "${LDM_HOME}"
-    chown ${PAM_USER_UID}.${PAM_USER_GID} "${LDM_HOME}"
-
-    logger "ltsp-session: mounting user home directory ($LDM_HOME) with sshfs"
-    export SSHFS_HOME=true
-    sshfs -o ${follow_home_symlinks}allow_other,ControlPath=${LDM_SOCKET} ${LDM_SERVER}:${LDM_HOME} ${LDM_HOME}
-
     ;;
 
 
@@ -274,9 +221,9 @@ open_session)
 
     else
         logger "ltsp-session: run pressh scripts"
-        /usr/share/ldm/ldm-script pressh
+        /usr/share/ltsp-lightdm/run-rc-scripts pressh
 
-#        open_socket "${SOCKET}"
+        open_socket "${SOCKET}"
         export LDM_SOCKET=${SOCKET}
         # get the IP address via the ssh tunnel
         export LDMINFO_IPADDR=$(
@@ -287,8 +234,8 @@ open_session)
 
         logger "ltsp-session: start thin client"
 
-        /usr/share/ldm/ldm-script start
-        daemon -i -- /usr/share/ldm/ldm-script xsession
+        /usr/share/ltsp-lightdm/run-rc-scripts start
+        daemon -i -- /usr/share/ltsp-lightdm/run-rc-scripts xsession
     fi
 
     ;;
