@@ -1,0 +1,55 @@
+#! /bin/sh
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+umask 022
+
+ACTION=$1
+
+for DIR in /etc/ldm/rc.d /usr/share/ldm/rc.d /usr/lib/ldm/rc.d ; do
+    if [ -d "$DIR" ]; then
+        RCDIRS="$RCDIRS $DIR"
+    fi
+done
+
+SCRIPTS=
+case "${ACTION}" in
+    pressh)
+        SCRIPTS="$(find -L $RCDIRS -type f -name 'P*' -printf '%f\n')"
+        ;;
+    start)
+        SCRIPTS="$(find -L $RCDIRS -type f -name 'S*' -printf '%f\n')"
+        ;;
+    stop)
+        SCRIPTS="$(find -L $RCDIRS -type f -name 'K*' -printf '%f\n')"
+        ;;
+    init)
+        SCRIPTS="$(find -L $RCDIRS -type f -name 'I*' -printf '%f\n')"
+        ;;
+    xsession)
+        SCRIPTS="$(find -L $RCDIRS -type f -name 'X*' -printf '%f\n')"
+        ;;
+esac
+
+export TEXTDOMAIN=ldmrc
+
+. /usr/bin/gettext.sh
+
+# source ltsp client functions
+if [ -f "/usr/share/ltsp/ltsp-client-functions" ]; then
+    . /usr/share/ltsp/ltsp-client-functions
+# source older common functions for backwards compatibility
+elif [ -f "/usr/share/ltsp/ltsp-common-functions" ]; then
+    . /usr/share/ltsp/ltsp-common-functions
+fi
+
+for SCRIPT in $(echo ${SCRIPTS} | tr ' ' '\n'| egrep ^[0-9a-zA-Z_\-]*$ | sort -u) ; do
+    # only source the first instance of the script found
+    for DIR in $RCDIRS ; do
+        if [ -f "$DIR/$SCRIPT" ]; then
+            . ${DIR}/${SCRIPT}
+            break
+        fi
+    done
+done
