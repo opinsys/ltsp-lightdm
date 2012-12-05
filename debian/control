@@ -7,7 +7,7 @@ Standards-Version: 3.8.4
 
 Package: ltsp-lightdm
 Architecture: all
-Depends: ${misc:Depends}, lightdm, lightdm-gtk-greeter, ldm, ltspfs, daemon, libpam-sshauth, libnss-sshsock2
+Depends: ${misc:Depends}, lightdm, lightdm-gtk-greeter, ltspfs, daemon
 Description: Hack for logging into LTSP system from LightDM
  .
  LDM is the login display manager in LTSP systems. This hack makes it possible to use LightDM and GDM instead of LDM as the display manager in LTSP-5 systems. This is not yet intended to be used by end-users, the primary audience are LTSP developers.
