@@ -130,7 +130,7 @@ open_socket () {
     S=$1
 
     if [ -n "${DISPLAY}" ]; then
-        daemon -i -- ssh -K -q -N -Y -M -K -S "${S}" -l ${PAM_USER} ${LDM_SERVER}
+        daemon -i -- ssh -K -q -N -Y -M -K -S "${S}" -p ${SSH_OVERRIDE_PORT:-22} -l ${PAM_USER} ${LDM_SERVER}
 
         waitfor "${S}"
 
