@@ -17,4 +17,4 @@ export NSS_SSHSOCK_SOCKET="/var/run/ldm_socket_0_server"
 export NSS_SSHSOCK_HOST="server"
 
 unset DISPLAY # prevents lightdm from using Xephyr
-/usr/sbin/lightdm
+/usr/sbin/lightdm -c /usr/share/ltsp-lightdm/lightdm.conf --xsessions-dir=/usr/share/ltsp-lightdm/xsessions

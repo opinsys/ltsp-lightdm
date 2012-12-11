@@ -4,9 +4,9 @@ all:
 
 install:
 	install -D -o root -g root -m 644 lightdm/lightdm.conf \
-		$(DESTDIR)/etc/lightdm/lightdm.conf
+		$(DESTDIR)/usr/share/ltsp-lightdm/lightdm.conf
 	install -D -o root -g root -m 644 xsessions/ltsp-session.desktop \
-		$(DESTDIR)/usr/share/xsessions/ltsp-session.desktop
+		$(DESTDIR)/usr/share/ltsp-lightdm/xsessions/ltsp-session.desktop
 	install -D -o root -g root -m 755 xsession-stub \
 		$(DESTDIR)/usr/share/ltsp-lightdm/xsession-stub
 	install -D -o root -g root -m 755 puavo-ltsp-session \
