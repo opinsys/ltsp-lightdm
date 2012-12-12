@@ -16,5 +16,8 @@ cleanup()
 export NSS_SSHSOCK_SOCKET="/var/run/ldm_socket_0_server"
 export NSS_SSHSOCK_HOST="server"
 
+# Do X settings using the standard LTSP configuration tools
+. /usr/share/ltsp/screen-x-common
+
 unset DISPLAY # prevents lightdm from using Xephyr
 /usr/sbin/lightdm -c /usr/share/ltsp-lightdm/lightdm.conf --xsessions-dir=/usr/share/ltsp-lightdm/xsessions
