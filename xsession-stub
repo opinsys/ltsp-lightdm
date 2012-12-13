@@ -1,9 +1,15 @@
 #!/bin/sh
 # Hack to keep the thin client session open while the ssh connection is open
-# FIXME: support also fat clients
-HOST=`hostname`
-sleep 10 # wait for the tunnel to open
-while [ "`ps ax | grep ssh | grep $HOST`" != "" ]; do
-    sleep 1
-done
+# FIXME: better fat client support
 
+. /usr/share/ltsp/ltsp_config
+
+if boolean_is_true "$LTSP_FATCLIENT"; then
+  gnome-session --session=gnome-fallback
+else
+  HOST=`hostname`
+  sleep 10 # wait for the tunnel to open
+  while [ "`ps ax | grep ssh | grep $HOST`" != "" ]; do
+    sleep 1
+  done
+fi

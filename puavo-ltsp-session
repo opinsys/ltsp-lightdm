@@ -32,6 +32,9 @@ export SSH_ASKPASS="/usr/bin/shm_askpass"
 
 test -x $(which daemon) || exit 1
 
+if boolean_is_true "$LTSP_FATCLIENT"; then
+  exit 0
+fi
 
 #
 # Set XAUTHORITY based on current display manager.
