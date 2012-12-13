@@ -104,20 +104,6 @@ setenv() {
     fi
 }
 
-
-#
-# Wait for our socket to appear.
-#
-waitfor () {
-    S=$1
-
-    while [ ! -S "${S}" ]; do
-        logger "ltsp-session: waiting for socket $S"
-        sleep 1
-    done
-}
-
-
 #
 # Open ssh control socket.
 #
@@ -130,9 +116,33 @@ open_socket () {
     S=$1
 
     if [ -n "${DISPLAY}" ]; then
-        daemon -i -- ssh -K -q -N -Y -M -K -S "${S}" -p ${SSH_OVERRIDE_PORT:-22} -l ${PAM_USER} ${LDM_SERVER}
+        daemon --pidfile=/tmp/puavo-ltsp-session.pid -i -- ssh -K -q -N -Y -M -K -S "${S}" -p ${SSH_OVERRIDE_PORT:-22} -l ${PAM_USER} ${LDM_SERVER}
 
-        waitfor "${S}"
+        # Wait for the socket to open. If nothing happens in 15 seconds,
+        # assume that the connection did not come up
+
+        COUNTER=0
+
+        while [ ! -S "${S}" \
+                -a $COUNTER -lt 15 ]; do
+          COUNTER=`expr $COUNTER + 1`
+          logger "ltsp-session: waiting for socket $S"
+          sleep 1
+        done
+
+        # If the socket did not come up, kill the ssh process and exit
+        # with an error
+        if [ ! -S "${S}" ]; then
+          if [ ! -f "/tmp/puavo-ltsp-session.pid" ]; then
+            logger "ltsp-session: ssh socket to server did not come up and ssh died on its own"
+            exit 54
+          else
+            logger "ltsp-session: ssh socket to server did not come up, killing ssh daemon pid ${SSH_PID}"
+            SSH_PID=$(cat /tmp/puavo-ltsp-session.pid)
+            kill ${SSH_PID}
+            exit 55
+          fi
+        fi
 
         logger "ltsp-session: socket $S open"
     fi
