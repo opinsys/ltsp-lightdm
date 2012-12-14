@@ -31,5 +31,10 @@ if [ -n "${X_COLOR_DEPTH}" ]; then
   echo "xserver-command=X -depth ${X_COLOR_DEPTH}" >> /etc/lightdm/lightdm.conf
 fi
 
+# XXX dbus must be started before lightdm... actually, puavo-client-core
+# XXX should wait for dbus to start, but this did not work for some reasons,
+# XXX this one works better:
+service dbus restart || service dbus start
+
 unset DISPLAY # prevents lightdm from using Xephyr
 /usr/sbin/lightdm -c /etc/lightdm/lightdm.conf
