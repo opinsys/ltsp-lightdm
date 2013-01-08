@@ -19,6 +19,11 @@ export NSS_SSHSOCK_HOST="server"
 # Do X settings using the standard LTSP configuration tools
 . /usr/share/ltsp/screen-x-common
 
+# Link to the ltsp-generated xorg.conf (created above) so that lightdm/X can
+# use it.  However, do not overwrite the default /etc/X11/xorg.conf if it
+# exists, in case something has created it in some way.
+ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
+
 # There's a bug in lightdm-1.4.0/liblightdm-gobject/session.c
 # update_sessions() method which causes it to always use the default
 # config dir to load lightdm.conf even if configuration file has been
