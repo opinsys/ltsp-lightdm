@@ -1,5 +1,0 @@
-# Also check with xprop, this way localapps are not required to be enabled.
-# Don't reboot now to avoid ghost processes, store the result in a file
-# to be processed by screen-session.d/XS00-halt-reboot.
-xprop -root -notype LTSP_LOGOUT_ACTION | sed -ne 's/^LTSP_LOGOUT_ACTION = "\(.*\)"/\1/p' > /var/run/ltsp-logout-action || true
-xprop -root -remove LTSP_LOGOUT_ACTION
