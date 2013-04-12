@@ -5,6 +5,9 @@ all:
 install:
 	install -D -o root -g root -m 644 lightdm/lightdm.conf \
 		$(DESTDIR)/usr/share/ltsp-lightdm/lightdm.conf
+	install -D -o root -g root -m 644 \
+		lightdm/lightdm.conf-with_guest_session \
+		$(DESTDIR)/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
 	install -D -o root -g root -m 644 xsessions/ltsp-session.desktop \
 		$(DESTDIR)/usr/share/ltsp-lightdm/xsessions/ltsp-session.desktop
 	install -D -o root -g root -m 755 xsession-stub \
