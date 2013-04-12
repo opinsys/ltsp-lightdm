@@ -43,15 +43,6 @@ esac
 
 cp ${lightdm_conf} /etc/lightdm/lightdm.conf
 
-# Do not offer guest user as the default user, provide "*other" instead.
-(
-  set -o noclobber
-  cat <<-EOF > /var/lib/lightdm/.cache/unity-greeter/state
-	[greeter]
-	last-user=*other
-	EOF
-) 2>/dev/null || true
-
 if [ -n "${X_COLOR_DEPTH}" ]; then
   echo "xserver-command=X -depth ${X_COLOR_DEPTH}" >> /etc/lightdm/lightdm.conf
 fi
