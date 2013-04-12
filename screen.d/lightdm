@@ -24,13 +24,24 @@ export NSS_SSHSOCK_HOST="server"
 # exists, in case something has created it in some way.
 ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
 
+# Allow guest login on fatclients and laptops, if ALLOW_GUESTLOGIN lts.conf
+# variable is set.
+lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf
+case "$PUAVO_HOSTTYPE" in
+  fatclient|laptop)
+    if boolean_is_true "$ALLOW_GUESTLOGIN"; then
+      lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
+    fi
+    ;;
+esac
+
 # There's a bug in lightdm-1.4.0/liblightdm-gobject/session.c
 # update_sessions() method which causes it to always use the default
 # config dir to load lightdm.conf even if configuration file has been
 # set on the command line. To overcome this problem, copy the lightdm.conf
 # also to /etc/lightdm/lightdm.conf so that it gets read properly.
 
-cp /usr/share/ltsp-lightdm/lightdm.conf /etc/lightdm/
+cp ${lightdm_conf} /etc/lightdm/lightdm.conf
 
 if [ -n "${X_COLOR_DEPTH}" ]; then
   echo "xserver-command=X -depth ${X_COLOR_DEPTH}" >> /etc/lightdm/lightdm.conf

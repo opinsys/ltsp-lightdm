@@ -1,0 +1,12 @@
+[LightDM]
+user-authority-in-system-dir=true
+xsessions-directory=/usr/share/ltsp-lightdm/xsessions
+
+[SeatDefaults]
+allow-guest=true
+display-setup-script=/usr/share/ltsp-lightdm/xinitrc
+greeter-hide-users=true
+greeter-session=unity-greeter
+greeter-show-remote-login=false
+user-session=ltsp-session
+xserver-allow-tcp=true
