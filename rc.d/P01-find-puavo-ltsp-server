@@ -11,13 +11,15 @@ case "$(cat /etc/puavo/hosttype)" in
            /etc/puavo/certs/rootca.pem 
       fi
 
-      # XXX We need the boot servers FQDN, but SERVER gives us the ip number,
-      # XXX and NFS_SERVER is the only available variable here that gives us
-      # XXX what we want.
+      PUAVO_DOMAIN=$(cat /etc/puavo/domain)
+      API_SERVER=$(dig +time=2 +tries=1 SRV _puavo-api._tcp.${PUAVO_DOMAIN} \
+		       +search +short \
+		    | awk '{ sub(/\.$/, ""); printf "%s:%s", $4, $3 }')
+
       POSSIBLE_LDM_SERVER=$(
         curl --cacert /etc/puavo/certs/rootca.pem \
              --max-time 12 \
-             "https://${NFS_SERVER}/v3/ltsp_servers/_most_idle" 2>/dev/null \
+             "https://${API_SERVER}/v3/ltsp_servers/_most_idle" 2>/dev/null \
           | jq --raw-output .hostname)
 
       if [ -n "$POSSIBLE_LDM_SERVER" ]; then
