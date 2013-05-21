@@ -1,0 +1,33 @@
+# Get LDM_SERVER from the Puavo bootserver load balancer
+
+case "$(cat /etc/puavo/hosttype)" in
+  thinclient)
+    if [ -n "$SERVER" ]; then
+      # XXX This is not good, find the certificate to
+      # XXX /etc/puavo/certs/rootca.pem some other way.
+      if [ ! -e /etc/puavo/certs/rootca.pem ]; then
+        mkdir -p /etc/puavo/certs
+        cp /usr/share/ca-certificates/opinsys/opinsys-ca.crt \
+           /etc/puavo/certs/rootca.pem 
+      fi
+
+      # XXX We need the boot servers FQDN, but SERVER gives us the ip number,
+      # XXX and NFS_SERVER is the only available variable here that gives us
+      # XXX what we want.
+      POSSIBLE_LDM_SERVER=$(
+        curl --cacert /etc/puavo/certs/rootca.pem \
+             --max-time 12 \
+             "https://${NFS_SERVER}/v3/ltsp_servers/_most_idle" 2>/dev/null \
+          | jq --raw-output .hostname)
+
+      if [ -n "$POSSIBLE_LDM_SERVER" ]; then
+        LDM_SERVER=$POSSIBLE_LDM_SERVER
+        echo "using load balancing to direct login to $POSSIBLE_LDM_SERVER" \
+          | logger -t ltsp-lightdm-P01-find-puavo-ltsp-server
+      else
+        echo "could not use load balancing, logging in to $LDM_SERVER" \
+          | logger -t ltsp-lightdm-P01-find-puavo-ltsp-server
+      fi
+    fi
+    ;;
+esac
