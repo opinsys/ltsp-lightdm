@@ -69,7 +69,9 @@ setenv() {
     #
     # Load lts.conf
     #
-    PROCESS_LTS_CONF=Yes
+    PROCESS_LTS_CONF=Yes	# refresh ltsp-configs and tell the
+    PUAVO_LTSP_SESSION=Yes	# ltsp_config.d -scripts we are starting
+				# a new ltsp desktop session
     . /usr/share/ltsp/ltsp_config
     # NOTE: screen-x-common scripts break login
     #. /usr/share/ltsp/screen-x-common
