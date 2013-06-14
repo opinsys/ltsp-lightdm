@@ -27,13 +27,9 @@ ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
 # Allow guest login on fatclients and laptops, if ALLOW_GUESTLOGIN lts.conf
 # variable is set.
 lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf
-case "$PUAVO_HOSTTYPE" in
-  fatclient|laptop)
-    if boolean_is_true "$ALLOW_GUESTLOGIN"; then
-      lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
-    fi
-    ;;
-esac
+if boolean_is_true "$ALLOW_GUESTLOGIN"; then
+  lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
+fi
 
 # There's a bug in lightdm-1.4.0/liblightdm-gobject/session.c
 # update_sessions() method which causes it to always use the default
