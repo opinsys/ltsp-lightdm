@@ -13,6 +13,11 @@ cleanup()
     fi
 }
 
+puavo_get_device_param() {
+  param_name=$1
+  jq --raw-output ".${param_name}" /etc/puavo/device.json 2>/dev/null
+}
+
 export NSS_SSHSOCK_SOCKET="/var/run/ldm_socket_0_server"
 export NSS_SSHSOCK_HOST="server"
 
@@ -24,10 +29,12 @@ export NSS_SSHSOCK_HOST="server"
 # exists, in case something has created it in some way.
 ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
 
-# Allow guest login on fatclients and laptops, if ALLOW_GUESTLOGIN lts.conf
-# variable is set.
+# Allow guest login on fatclients and laptops,
+# if /etc/puavo/device.json exists and tells us so.
+# XXX Guest logins for thinclient do not work yet.
 lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf
-if boolean_is_true "$ALLOW_GUESTLOGIN"; then
+if [ "$(puavo_get_device_param allow_guest)" = "true" \
+  -a "$(puavo_get_device_param type)" != "thinclient" ]; then
   lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
 fi
 
