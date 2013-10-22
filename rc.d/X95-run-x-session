@@ -7,6 +7,9 @@
 
 # Handle localdev
 
+PUAVO_SESSION=$(cat "${PUAVO_SESSION_PATH}")
+PUAVO_SESSION_ID=$(echo ${PUAVO_SESSION} | jq --raw-output .uuid)
+
 if boolean_is_true "$LOCALDEV"; then
     MY_LOCALDEV="; /usr/sbin/ltspfsmounter all cleanup"
 fi
@@ -16,7 +19,7 @@ fi
 
 if ! boolean_is_true "$LDM_NOMAD"; then
     if ! boolean_is_true "$LTSP_FATCLIENT"; then
-        ssh -Y -t -S $LDM_SOCKET $LDM_SERVER "$CLIENT_ENV $MY_LANG $MY_DISP $MY_SCANNER $MY_SOUND $LDM_XSESSION $LDM_SESSION < /dev/null > /dev/null $MY_LOCALDEV"
+        ssh -Y -t -S $LDM_SOCKET $LDM_SERVER "$CLIENT_ENV PUAVO_SESSION_ID=$PUAVO_SESSION_ID $MY_LANG $MY_DISP $MY_SCANNER $MY_SOUND $LDM_XSESSION $LDM_SESSION < /dev/null > /dev/null $MY_LOCALDEV"
     else
         ICEAUTHORITY="$(dirname $XAUTHORITY)/ICEauthority"
         # Using pam_ck_connector to make fat client sessions ConsoleKit-aware
