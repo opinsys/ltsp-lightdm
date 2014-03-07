@@ -29,12 +29,9 @@ export NSS_SSHSOCK_HOST="server"
 # exists, in case something has created it in some way.
 ln -s /var/run/ltsp-xorg.conf /etc/X11/xorg.conf 2>/dev/null
 
-# Allow guest login on fatclients and laptops,
-# if /etc/puavo/device.json exists and tells us so.
-# XXX Guest logins for thinclient do not work yet.
+# Allow guest login if /etc/puavo/device.json exists and tells us so.
 lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf
-if [ "$(puavo_get_device_param allow_guest)" = "true" \
-  -a "$(puavo_get_device_param type)" != "thinclient" ]; then
+if [ "$(puavo_get_device_param allow_guest)" = "true" ]; then
   lightdm_conf=/usr/share/ltsp-lightdm/lightdm.conf-with_guest_session
 fi
 
